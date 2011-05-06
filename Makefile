@@ -64,6 +64,6 @@ fuse:
 	avrdude -c $(PROG) -p $(MCU_PROG) -P $(PORT) -U lfuse:w:0xe4:m  -U hfuse:w:0xDF:m -U efuse:w:0xff:m
 #-------------------
 clean:
-	rm -f *.o *.map *.out *.hex *.bin
+	rm -f *.o *.map *.out *.hex *.bin *.lss
 #-------------------
 
