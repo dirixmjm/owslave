@@ -36,6 +36,9 @@ ds2408 ds2423 ds2502:
 %_burn: %_dev
 	@make DEVNAME=$(subst _burn,,$@) DEVCODE=$($(subst _burn,,$@)_CODE) burn
 
+%_program: %_dev
+	@make DEVNAME=$(subst _program,,$@) DEVCODE=$($(subst _program,,$@)_CODE) program
+
 %_dev:
 	@make DEVNAME=$(subst _dev,,$@) all
 
@@ -45,7 +48,7 @@ CFLAGS=-g -mmcu=$(MCU) -Wall -Wstrict-prototypes -Os -mcall-prologues
 #-------------------
 %.o : %.c Makefile $(wildcard *.h)
 	$(CC) $(CFLAGS) -Os -c $<
-$(DEVNAME).out : vbus.o onewire.o uart.o $(DEVNAME).o
+$(DEVNAME).out : slimmemeter.o onewire.o $(DEVNAME).o
 	$(CC) $(CFLAGS) -o $@ -Wl,-Map,$(DEVNAME).map,--cref $^
 $(DEVNAME).hex : $(DEVNAME).out 
 	$(OBJCOPY) -R .eeprom -O ihex $< $@
@@ -60,6 +63,9 @@ $(DEVNAME).eeprom:
 burn: $(DEVNAME).hex $(DEVNAME).eeprom
 	avrdude -V -c $(PROG) -p $(MCU_PROG) -P $(PORT) -U flash:w:$(DEVNAME).hex:i -U eeprom:w:$(DEVNAME).eeprom:i 
 	#avrdude -V -c $(PROG) -p $(MCU_PROG) -U $(PRG).bin
+#-------------------
+program: 
+	avrdude -c $(PROG) -p $(MCU_PROG) -P $(PORT) -e -U flash:w:$(DEVNAME).hex
 #-------------------
 fuse: 
 	avrdude -c $(PROG) -p $(MCU_PROG) -P $(PORT) -U lfuse:w:0xe4:m  -U hfuse:w:0xDF:m -U efuse:w:0xff:m

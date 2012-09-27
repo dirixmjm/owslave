@@ -17,7 +17,7 @@
  */
 
 #include "onewire.h"
-#include "vbus.h" 
+#include "slimmemeter.h" 
 
 #include <stdlib.h>
 #include <avr/io.h>
@@ -37,13 +37,12 @@
 #define BAUD 9600
 #define BAUDRATE (F_CPU / 16 / BAUD )-1
 
-extern volatile uint8_t vbus_out_buffer[32];
+extern volatile uint8_t out_buffer[OUTBUFFERSIZE];
 
 void do_read(void)
 {
 	uint8_t crc = 0;
 	uint16_t adr;
-	uint16_t bcrc = 1;
 	uint8_t b;
 
 	recv_byte();
@@ -64,8 +63,8 @@ void do_read(void)
         
 	while(1)
         {
-           if( adr < 0x20 )
-              XMIT(vbus_out_buffer[adr]);
+           if( adr < OUTBUFFERSIZE )
+              XMIT(out_buffer[adr]);
            else
 	      XMIT(0xFF);
            adr++;
@@ -99,19 +98,23 @@ void update_idle(uint8_t bits)
 
 void init_state(void)
 {
-//Init UART for VBUS operation this is not for debugging.
+//Init UART for slimmemeter operation this is not for debugging.
     UBRRH = (unsigned char)(BAUDRATE>>8);
     UBRRL = (unsigned char) BAUDRATE;
     //UART0_CONTROL = _BV(RXCIE)|(1<<RXEN)|(1<<TXEN);
-    UART0_CONTROL = _BV(RXCIE)|(1<<RXEN);
+    UART0_CONTROL = _BV(RXCIE)| _BV(RXEN);
     // Set frame format: asynchronous, 8data, no parity, 1stop bit 
-    UCSRC = (3<<UCSZ0);
+    UCSRC = _BV(UCSZ1) | _BV(UPM1);
+
+    //PD5 output and pullup
+    DDRD |= _BV(PD5);
+    PORTD |= _BV(PD5);
 }
 
 SIGNAL(UART0_RECEIVE_INTERRUPT)
 {
    unsigned char data;
    data = UART0_DATA;
-   vbus_receive(data);
+   slimmemeter_receive(data);
 }
 
