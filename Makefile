@@ -19,19 +19,18 @@ OBJDUMP=$(ARCH)-objdump
 #-------------------
 help: 
 	@echo "Usage: make TYPE | TYPE_burn"
-	@echo "Known Types: ds2408 ds2423 ds2502"
+	@echo "Known Types: ds2408 ds2423 slimmemeter"
 
 #-------------------
 
 # device codes
 ds2408_CODE=29
 ds2423_CODE=1D
-ds2502_CODE=09
+slimmemeter_CODE=09
 
-DEVNAME=ds2502
 all: $(DEVNAME).hex $(DEVNAME).lss $(DEVNAME).bin
 
-ds2408 ds2423 ds2502:
+ds2408 ds2423 slimmemeter:
 	 @make $@_dev
 
 %_burn: %_dev
