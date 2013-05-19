@@ -17,14 +17,14 @@
 /* This code implements (some of) the DS2502 memory code.
  */
 
+#include <avr/io.h>
+#include "features.h"
 #include "onewire.h"
 #include "slimmemeter.h" 
 
-#include <stdlib.h>
-#include <avr/io.h>
+//#include <stdlib.h>
 #include <avr/interrupt.h>
-#include <stdlib.h>
-#include <stdio.h>
+//#include <stdio.h>
 
 #define C_READ_DATA      0xC3 
 #define C_STATUS      0xAA 
@@ -37,8 +37,6 @@
 #define UART0_UDRIE    UDRIE
 #define BAUD 9600
 #define BAUDRATE (F_CPU / 16 / BAUD )-1
-
-extern volatile uint8_t out_buffer[OUTBUFFERSIZE];
 
 void do_read(void)
 {

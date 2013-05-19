@@ -24,3 +24,7 @@ volatile uint8_t slimmemeter_state;
 #define DATA 0x30
 #define M3 0x40
 
+//Process serial data
+void slimmemeter_receive( uint8_t c );
+void do_read(void);
+
