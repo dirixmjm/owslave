@@ -14,6 +14,10 @@
 // AVRs use 8 bit timers
 typedef unsigned char timer_t;
 
+#if defined (__AVR_ATtiny4313__)
+#define EEARL EEAR
+#endif
+
 /* hardware specific settings, just as the cpu should come from
  * either the makefile or better something like Kconfig
  */
@@ -235,6 +239,33 @@ static inline void AVR_ATtiny84_owpin_setup(void) { PORTB &= ~4; DDRB &= ~4; }
 static inline void AVR_ATtiny84_owpin_low(void) { DDRB |= 4; }
 static inline void AVR_ATtiny84_owpin_hiz(void) { DDRB &= ~4; }
 static inline u_char AVR_ATtiny84_owpin_value(void) { return PINB & 4; }
+
+#elif defined (__AVR_ATtiny4313__)
+#define __CPU	AVR_ATtiny4313
+
+static inline void AVR_ATtiny4313_setup(void)
+{
+	CLKPR = 0x80;	// Prepare to ...
+	CLKPR = 0x00;	// ... set to 8.0 MHz
+	MCUCR |= (1 << ISC00);	// Interrupt on both level changes
+}
+
+static inline void AVR_ATtiny4313_mask_owpin(void) { GIMSK &= ~(1 << INT0); }
+static inline void AVR_ATtiny4313_unmask_owpin(void) { EIFR |= (1 << INTF0); GIMSK |= (1 << INT0); }
+static inline void AVR_ATtiny4313_set_owtimeout(timer_t timeout)
+{
+	TCNT0 = ~timeout;	// overrun at 0xFF
+	TIFR |= (1 << TOV0);
+	TIMSK |= (1 << TOIE0);
+}
+static inline void AVR_ATtiny4313_clear_owtimer(void) { TCNT0 = 0; TIMSK &= ~(1 << TOIE0); }
+static inline timer_t AVR_ATtiny4313_owtimer(void) { return TCNT0; }
+
+// use INT0 pin (PORT D2)
+static inline void AVR_ATtiny4313_owpin_setup(void) { PORTD &= ~4; DDRD &= ~4; }
+static inline void AVR_ATtiny4313_owpin_low(void) { DDRD |= 4; }
+static inline void AVR_ATtiny4313_owpin_hiz(void) { DDRD &= ~4; }
+static inline u_char AVR_ATtiny4313_owpin_value(void) { return PIND & 4; }
 
 #elif defined (__AVR_ATmega168__)
 #define __CPU	AVR_ATmega168
