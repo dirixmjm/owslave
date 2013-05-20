@@ -248,6 +248,8 @@ static inline void AVR_ATtiny4313_setup(void)
 	CLKPR = 0x80;	// Prepare to ...
 	CLKPR = 0x00;	// ... set to 8.0 MHz
 	MCUCR |= (1 << ISC00);	// Interrupt on both level changes
+        TCCR0A = 0;
+        TCCR0B = 0x03;
 }
 
 static inline void AVR_ATtiny4313_mask_owpin(void) { GIMSK &= ~(1 << INT0); }
